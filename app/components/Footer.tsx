@@ -4,11 +4,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { Instagram, Twitter, Facebook, Youtube, Mail, Globe } from 'lucide-react';
-import { useGetArtistProfileQuery } from '@/utils/services/api';
+import { useGetArtistProfileQuery, useGetServicesQuery } from '@/utils/services/api';
 
 const Footer: React.FC = () => {
   const { data: profileData } = useGetArtistProfileQuery(undefined);
   const profile = profileData;
+  const { data: servicesData } = useGetServicesQuery({});
+  const services = (servicesData || []).slice(0, 5);
 
   return (
     <footer className="bg-white py-24 px-8 border-t border-zinc-100">
@@ -68,10 +70,20 @@ const Footer: React.FC = () => {
           <div className="space-y-6">
             <h4 className="text-[10px] uppercase tracking-[0.4em] text-zinc-300 border-b border-zinc-50 pb-4 font-bold">Services</h4>
             <ul className="space-y-4 text-[10px] tracking-[0.2em] font-bold">
-              <li><span className="text-zinc-900">BRIDAL MEHNDI</span></li>
-              <li><span className="text-zinc-900">NAIL ARTISTRY</span></li>
-              <li><span className="text-zinc-900">MAKEUP DESIGN</span></li>
-              <li><span className="text-zinc-900">RANGOLI ART</span></li>
+              {services.length > 0 ? (
+                services.map((service: any) => (
+                  <li key={service._id}>
+                    <span className="text-zinc-900">{service.title?.toUpperCase()}</span>
+                  </li>
+                ))
+              ) : (
+                <>
+                  <li><span className="text-zinc-900">BRIDAL MEHNDI</span></li>
+                  <li><span className="text-zinc-900">NAIL ARTISTRY</span></li>
+                  <li><span className="text-zinc-900">MAKEUP DESIGN</span></li>
+                  <li><span className="text-zinc-900">RANGOLI ART</span></li>
+                </>
+              )}
             </ul>
           </div>
         </div>
