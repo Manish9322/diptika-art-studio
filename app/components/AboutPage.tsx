@@ -3,15 +3,17 @@
 
 import React from 'react';
 import { Quote, Loader2, User } from 'lucide-react';
-import { Testimonial } from '../../types';
-import { useGetArtistProfileQuery, useGetTestimonialsQuery } from '../../utils/services/api';
+import { Testimonial, Award } from '../../types';
+import { useGetArtistProfileQuery, useGetTestimonialsQuery, useGetAwardsQuery } from '../../utils/services/api';
 
 const AboutPage: React.FC = () => {
   const { data: profileData, isLoading: isProfileLoading } = useGetArtistProfileQuery(undefined);
   const { data: testimonialsData, isLoading: isTestimonialsLoading } = useGetTestimonialsQuery({});
+  const { data: awardsData, isLoading: isAwardsLoading } = useGetAwardsQuery({});
 
   const profile = profileData;
   const testimonials: Testimonial[] = testimonialsData || [];
+  const awards: Award[] = awardsData || [];
 
   if (isProfileLoading) {
     return (
@@ -182,16 +184,43 @@ const AboutPage: React.FC = () => {
       </section>
 
       {/* Accolades Section */}
-      <section className="py-24 border-b border-zinc-100 bg-[#f9f5f0]">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="flex flex-wrap justify-between items-center gap-12 opacity-60">
-            <span className="font-serif text-xl uppercase tracking-widest text-zinc-900">Featured in Vogue</span>
-            <span className="font-serif text-xl uppercase tracking-widest text-zinc-900">Brides Luxury 100</span>
-            <span className="font-serif text-xl uppercase tracking-widest text-zinc-900">Elle Beauty Award</span>
-            <span className="font-serif text-xl uppercase tracking-widest text-zinc-900">Harper's A-List</span>
+      {!isAwardsLoading && awards.length > 0 && (
+        <section className="py-24 border-b border-zinc-100 bg-[#f9f5f0]">
+          <div className="max-w-7xl mx-auto px-8">
+            {awards.length <= 4 ? (
+              // Static display for 4 or fewer awards
+              <div className="flex flex-wrap justify-between items-center gap-12 opacity-60">
+                {awards.map((award) => {
+                  const awardId = (award as any)._id || award.id;
+                  return (
+                    <span key={awardId} className="font-serif text-xl uppercase tracking-widest text-zinc-900">
+                      {award.title}
+                    </span>
+                  );
+                })}
+              </div>
+            ) : (
+              // Infinite carousel for more than 4 awards
+              <div className="relative py-4 overflow-hidden">
+                <div className="awards-carousel-wrapper">
+                  <div className="awards-carousel">
+                    {[...awards, ...awards].map((award, i) => {
+                      const awardId = (award as any)._id || award.id;
+                      return (
+                        <div key={`${awardId}-${i}`} className="award-item flex-shrink-0 px-8">
+                          <span className="font-serif text-xl uppercase tracking-widest text-zinc-900 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                            {award.title}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <style>{`
         @keyframes fade-in-up-hero {
@@ -239,6 +268,38 @@ const AboutPage: React.FC = () => {
         
         .testimonial-card {
           transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Awards Carousel Styles */
+        .awards-carousel-wrapper {
+          overflow: hidden;
+          position: relative;
+          padding: 8px 0;
+        }
+        
+        .awards-carousel {
+          display: flex;
+          animation: awards-scroll 30s linear infinite;
+          will-change: transform;
+          align-items: center;
+        }
+        
+        .awards-carousel:hover {
+          animation-play-state: paused;
+        }
+        
+        @keyframes awards-scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        
+        .award-item {
+          white-space: nowrap;
+          transition: opacity 0.3s ease;
         }
       `}</style>
     </div>

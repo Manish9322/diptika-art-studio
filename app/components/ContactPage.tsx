@@ -226,9 +226,14 @@ const ContactPage: React.FC = () => {
                 />
               </div>
               <div className="space-y-6">
-                <h4 className="font-serif text-2xl text-zinc-900">
-                  Direct Contact
-                </h4>
+                <div>
+                  <h4 className="font-serif text-2xl text-zinc-900 mb-3">
+                    Direct Contact
+                  </h4>
+                  <p className="text-zinc-500 text-sm font-light leading-relaxed">
+                    For immediate assistance and personalized inquiries
+                  </p>
+                </div>
                 <div className="space-y-4">
                   {profile?.email && (
                     <a
