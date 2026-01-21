@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { LayoutGrid, Briefcase, Image as ImageIcon, LogOut, Home, ChevronRight, Menu, X, BarChart2, User, Settings, MessageSquare, Star } from 'lucide-react';
+import { LayoutGrid, Briefcase, Image as ImageIcon, LogOut, Home, ChevronRight, Menu, X, BarChart2, User, Settings, MessageSquare, Star, Award } from 'lucide-react';
 import { ConfirmationModal } from '@/app/components/admin/AdminModals';
 
 interface MenuItem {
@@ -50,6 +50,7 @@ export default function AdminLayoutWrapper({ children }: { children: React.React
     { id: 'artworks', label: 'Collection', icon: <ImageIcon size={18} />, path: '/admin/artworks' },
     { id: 'services', label: 'Services', icon: <Briefcase size={18} />, path: '/admin/services' },
     { id: 'testimonials', label: 'Stories', icon: <Star size={18} />, path: '/admin/testimonials' },
+    { id: 'awards', label: 'Awards', icon: <Award size={18} />, path: '/admin/awards' },
     { id: 'analytics', label: 'Analytics', icon: <BarChart2 size={18} />, path: '/admin/analytics' },
     { id: 'profile', label: 'Profile', icon: <User size={18} />, path: '/admin/profile' },
     { id: 'settings', label: 'Settings', icon: <Settings size={18} />, path: '/admin/settings' },

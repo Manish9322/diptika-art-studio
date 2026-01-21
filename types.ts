@@ -91,4 +91,19 @@ export interface Testimonial {
   date: string;
 }
 
-export type Page = 'home' | 'portfolio' | 'about' | 'contact' | 'privacy' | 'terms' | 'admin-login' | 'admin-dashboard' | 'admin-services' | 'admin-art' | 'admin-analytics' | 'admin-profile' | 'admin-settings' | 'admin-contacts' | 'admin-testimonials';
+export interface Award {
+  id?: string;
+  _id?: string;
+  title: string;
+  organization: string;
+  year: number;
+  description?: string;
+  category?: string;
+  image?: string;
+  certificateUrl?: string;
+  featured?: boolean;
+  active?: boolean;
+  order?: number;
+}
+
+export type Page = 'home' | 'portfolio' | 'about' | 'contact' | 'privacy' | 'terms' | 'admin-login' | 'admin-dashboard' | 'admin-services' | 'admin-art' | 'admin-analytics' | 'admin-profile' | 'admin-settings' | 'admin-contacts' | 'admin-testimonials' | 'admin-awards';

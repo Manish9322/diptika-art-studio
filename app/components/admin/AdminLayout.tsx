@@ -1,8 +1,7 @@
-
 'use client';
 
 import React, { useState } from 'react';
-import { LayoutGrid, Briefcase, Image as ImageIcon, LogOut, Home, ChevronRight, Menu, X, BarChart2, User, Settings, MessageSquare, Star } from 'lucide-react';
+import { LayoutGrid, Briefcase, Image as ImageIcon, LogOut, Home, ChevronRight, Menu, X, BarChart2, User, Settings, MessageSquare, Star, Award } from 'lucide-react';
 // Fixed: Page type should be imported from types.ts
 import { Page } from '../../../types';
 import { ConfirmationModal } from './AdminModals';
@@ -31,6 +30,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onNavi
     { id: 'admin-art', label: 'Collection', icon: <ImageIcon size={18} />, target: 'admin-art' as Page },
     { id: 'admin-services', label: 'Services', icon: <Briefcase size={18} />, target: 'admin-services' as Page },
     { id: 'admin-testimonials', label: 'Stories', icon: <Star size={18} />, target: 'admin-testimonials' as Page },
+    { id: 'admin-awards', label: 'Awards', icon: <Award size={18} />, target: 'admin-awards' as Page },
     { id: 'admin-analytics', label: 'Analytics', icon: <BarChart2 size={18} />, target: 'admin-analytics' as Page },
     { id: 'admin-profile', label: 'Profile', icon: <User size={18} />, target: 'admin-profile' as Page },
     { id: 'admin-settings', label: 'Settings', icon: <Settings size={18} />, target: 'admin-settings' as Page },

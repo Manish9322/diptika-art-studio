@@ -2,20 +2,35 @@
 'use client';
 
 import React from 'react';
-import { useGetArtistProfileQuery } from '@/utils/services/api';
+import { useGetArtistProfileQuery, useGetTestimonialsQuery, useGetAwardsQuery } from '@/utils/services/api';
 import { Loader2 } from 'lucide-react';
 
 const AboutSection: React.FC = () => {
   const { data: profileData, isLoading } = useGetArtistProfileQuery(undefined);
+  const { data: testimonialsData, isLoading: testimonialsLoading } = useGetTestimonialsQuery({});
+  const { data: awardsData, isLoading: awardsLoading } = useGetAwardsQuery({});
   const profile = profileData; // API already transforms response to data object
 
   // Extract years from experience (e.g., "12 Years" -> "12+")
   const experienceYears = profile?.experience?.replace(/[^0-9]/g, '') || '12';
+  
+  // Get testimonials count
+  const testimonialsCount = testimonialsData?.length || 0;
+  
+  // Get awards count
+  const awardsCount = awardsData?.length || 0;
+  
+  // Console log for debugging
+  console.log('Testimonials Count:', testimonialsCount);
+  console.log('Awards Count:', awardsCount);
+  
+  // Show client count only if testimonials > 50
+  const showClientCount = testimonialsCount > 50;
 
-  if (isLoading) {
+  if (isLoading || testimonialsLoading || awardsLoading) {
     return (
       <section id="about" className="py-32 px-8 bg-[#f9f5f0] overflow-hidden">
-        <div className="max-w-7xl mx-auto flex items-center justify-center min-h-[400px]">
+        <div className="max-w-7xl mx-auto flex items-center justify-center min-h-400px">
           <Loader2 size={32} className="animate-spin text-champagne" />
         </div>
       </section>
@@ -28,7 +43,7 @@ const AboutSection: React.FC = () => {
         
         {/* Editorial Image Composition */}
         <div className="lg:col-span-5 relative">
-          <div className="relative z-10 w-full aspect-[4/5] border-[15px] border-white shadow-xl overflow-hidden">
+          <div className="relative z-10 w-full aspect-4/5 border-15px border-white shadow-xl overflow-hidden">
             <img 
               src={profile?.profileImage || profile?.image || "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1200"} 
               alt={profile?.name || "The Artist"} 
@@ -62,12 +77,14 @@ const AboutSection: React.FC = () => {
                 <span className="block font-serif text-3xl text-zinc-900 mb-1">{experienceYears}+</span>
                 <span className="text-[9px] uppercase tracking-[0.2em] text-champagne font-bold">Years Experience</span>
               </div>
+              {showClientCount && (
+                <div>
+                  <span className="block font-serif text-3xl text-zinc-900 mb-1">{testimonialsCount}+</span>
+                  <span className="text-[9px] uppercase tracking-[0.2em] text-champagne font-bold">Bespoke Clients</span>
+                </div>
+              )}
               <div>
-                <span className="block font-serif text-3xl text-zinc-900 mb-1">800+</span>
-                <span className="text-[9px] uppercase tracking-[0.2em] text-champagne font-bold">Bespoke Clients</span>
-              </div>
-              <div>
-                <span className="block font-serif text-3xl text-zinc-900 mb-1">15</span>
+                <span className="block font-serif text-3xl text-zinc-900 mb-1">{awardsCount}</span>
                 <span className="text-[9px] uppercase tracking-[0.2em] text-champagne font-bold">Industry Awards</span>
               </div>
             </div>

@@ -73,7 +73,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 export const api = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["Artwork", "Service", "Testimonial", "Contact", "Settings", "Profile", "Analytics"],
+  tagTypes: ["Artwork", "Service", "Testimonial", "Contact", "Settings", "Profile", "Analytics", "Award"],
   endpoints: (builder) => ({
     // Artwork endpoints
     getArtworks: builder.query({
@@ -213,6 +213,53 @@ export const api = createApi({
         method: "DELETE",
       }),
       invalidatesTags: ["Testimonial"],
+      transformResponse: (response) => response.data || response,
+    }),
+    
+    // Award endpoints
+    getAwards: builder.query({
+      query: (params = {}) => {
+        const url = new URL('/awards', 'http://localhost');
+        if (params.search) url.searchParams.append('search', params.search);
+        if (params.year) url.searchParams.append('year', params.year);
+        if (params.limit) url.searchParams.append('limit', params.limit);
+        return {
+          url: url.pathname + url.search,
+          method: 'GET'
+        };
+      },
+      providesTags: ["Award"],
+      transformResponse: (response) => response.data || response,
+    }),
+    getAwardById: builder.query({
+      query: (id) => `/awards?id=${id}`,
+      providesTags: (result, error, id) => [{ type: "Award", id }],
+      transformResponse: (response) => response.data || response,
+    }),
+    addAward: builder.mutation({
+      query: (award) => ({
+        url: "/awards",
+        method: "POST",
+        body: award,
+      }),
+      invalidatesTags: ["Award"],
+      transformResponse: (response) => response.data || response,
+    }),
+    updateAward: builder.mutation({
+      query: ({ id, ...award }) => ({
+        url: `/awards?id=${id}`,
+        method: "PUT",
+        body: award,
+      }),
+      invalidatesTags: ["Award"],
+      transformResponse: (response) => response.data || response,
+    }),
+    deleteAward: builder.mutation({
+      query: (id) => ({
+        url: `/awards?id=${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Award"],
       transformResponse: (response) => response.data || response,
     }),
     
@@ -379,6 +426,11 @@ export const {
   useAddTestimonialMutation,
   useUpdateTestimonialMutation,
   useDeleteTestimonialMutation,
+  useGetAwardsQuery,
+  useGetAwardByIdQuery,
+  useAddAwardMutation,
+  useUpdateAwardMutation,
+  useDeleteAwardMutation,
   useGetContactRequestsQuery,
   useGetContactRequestByIdQuery,
   useAddContactRequestMutation,
