@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DIPTIKA ART STUDIO
 
-## Getting Started
+**DIPTIKA ART STUDIO v1.0** is a modern portfolio and content management application designed for art and beauty studios. It combines an elegant public-facing website with a comprehensive admin dashboard, enabling seamless content management, client engagement tracking, and business analytics with an intuitive and responsive interface.
 
-First, run the development server:
+The platform is built with a modern technology stack, including **Next.js**, **TypeScript**, **React**, **Redux**, **MongoDB**, **Tailwind CSS**, and **Lucide Icons**, ensuring a highly performant, scalable, and visually stunning user experience.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Copyright Notice
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**DIPTIKA ART STUDIO**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copyright © 2026 Manish Sonawane. All rights reserved.
 
-## Learn More
+This project, **DIPTIKA ART STUDIO**, is a demonstration of a modern portfolio and content management system combining intuitive design with cutting-edge technology. Unauthorized use, modification, or distribution of the software or its components is prohibited unless explicitly stated under the terms of the license.
 
-To learn more about Next.js, take a look at the following resources:
+By using or contributing to this project, you agree to comply with the terms and conditions defined in the license. You may use the software for personal or educational purposes, provided that proper credit is given to the original author.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### License Information
 
-## Deploy on Vercel
+This project is licensed under the MIT License. Please refer to the `LICENSE` file in this repository for detailed license information. The terms of the license govern the use, distribution, and modification of the software.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Disclaimer
+
+The software is provided "as-is" without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.
+
+---
+
+### Trademarks
+
+Any trademarks, service marks, or other marks associated with this project or its components are the property of their respective owners.
