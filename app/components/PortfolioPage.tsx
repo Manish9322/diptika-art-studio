@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Artwork } from '../../types';
-import { X, Share2, Instagram, Facebook, Search, Filter, ChevronRight } from 'lucide-react';
+import { X, Share2, Search, Filter, ChevronRight } from 'lucide-react';
 import { useGetArtworksQuery, useGetServicesQuery } from '@/utils/services/api';
 
 // Helper function to get currency symbol
@@ -23,6 +23,7 @@ const PortfolioPage: React.FC = () => {
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
 
   // Helper function to format date for display
   const formatDateForDisplay = (dateStr: string) => {
@@ -66,6 +67,56 @@ const PortfolioPage: React.FC = () => {
       return matchesCategory && matchesSearch;
     });
   }, [artworks, activeCategory, searchQuery]);
+
+  const handleShare = async (artwork: Artwork) => {
+    const shareUrl = `${window.location.origin}/portfolio#${artwork._id || artwork.id}`;
+    const shareData = {
+      title: artwork.title,
+      text: `Check out "${artwork.title}" - ${artwork.category} artwork by Shringar Studio`,
+      url: shareUrl,
+    };
+
+    try {
+      // Check if Web Share API is supported
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        setShareStatus('Shared successfully!');
+      } else {
+        // Fallback: Copy to clipboard
+        await navigator.clipboard.writeText(shareUrl);
+        setShareStatus('Link copied to clipboard!');
+      }
+      
+      // Clear status after 3 seconds
+      setTimeout(() => setShareStatus(null), 3000);
+    } catch (error: any) {
+      // User cancelled the share or other error occurred
+      if (error.name !== 'AbortError') {
+        // Try clipboard fallback
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          setShareStatus('Link copied to clipboard!');
+          setTimeout(() => setShareStatus(null), 3000);
+        } catch (clipboardError) {
+          setShareStatus('Unable to share. Please try again.');
+          setTimeout(() => setShareStatus(null), 3000);
+        }
+      }
+    }
+  };
+
+  // Handle deep linking - open modal based on URL hash
+  useEffect(() => {
+    if (!artworksLoading && artworks.length > 0) {
+      const hash = window.location.hash.replace('#', '');
+      if (hash) {
+        const artwork = artworks.find(art => (art._id || art.id) === hash);
+        if (artwork) {
+          setSelectedArtwork(artwork);
+        }
+      }
+    }
+  }, [artworksLoading, artworks]);
 
   return (
     <div className="min-h-screen pt-32 pb-32 bg-[#fdfaf6]">
@@ -206,14 +257,18 @@ const PortfolioPage: React.FC = () => {
                   </div>
                 ))}
               </div>
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2 bg-black/10 backdrop-blur-md px-3 py-2 rounded-full">
-                {selectedArtwork.images.map((_, index) => (
-                  <div key={index} className="w-1.5 h-1.5 rounded-full bg-white opacity-40"></div>
-                ))}
-              </div>
-              <div className="absolute top-1/2 right-6 -translate-y-1/2 text-white/50 animate-bounce-horizontal">
-                <ChevronRight size={32} />
-              </div>
+              {selectedArtwork.images.length > 1 && (
+                <>
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-2 bg-black/10 backdrop-blur-md px-3 py-2 rounded-full">
+                    {selectedArtwork.images.map((_, index) => (
+                      <div key={index} className="w-1.5 h-1.5 rounded-full bg-white opacity-40"></div>
+                    ))}
+                  </div>
+                  <div className="absolute top-1/2 right-6 -translate-y-1/2 text-white/50">
+                    <ChevronRight size={32} />
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="lg:w-2/5 p-8 md:p-16 flex flex-col justify-center bg-white overflow-y-auto">
@@ -246,16 +301,22 @@ const PortfolioPage: React.FC = () => {
                   )}
                 </div>
               </div>
-              <div className="flex items-center space-x-8 pt-8 border-t border-zinc-100">
-                <button className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.3em] text-zinc-900 hover:text-champagne transition-colors font-bold">
+              <div className="pt-8 border-t border-zinc-100">
+                <button 
+                  onClick={() => handleShare(selectedArtwork)}
+                  className="flex items-center space-x-2 text-[10px] uppercase tracking-[0.3em] text-zinc-900 hover:text-champagne transition-colors font-bold"
+                >
                   <Share2 size={14} />
                   <span>Share Work</span>
                 </button>
-                <div className="flex space-x-4">
-                  <Instagram size={18} className="text-zinc-300 hover:text-zinc-900 cursor-pointer transition-colors" />
-                  <Facebook size={18} className="text-zinc-300 hover:text-zinc-900 cursor-pointer transition-colors" />
-                </div>
               </div>
+              
+              {/* Share Status Notification */}
+              {shareStatus && (
+                <div className="mt-6 px-6 py-3 bg-champagne/10 border border-champagne/30 rounded">
+                  <p className="text-xs text-champagne text-center font-medium">{shareStatus}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

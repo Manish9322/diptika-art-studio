@@ -1,10 +1,11 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Service } from '../../types';
 import { Loader2 } from 'lucide-react';
 import { useGetServicesQuery } from '@/utils/services/api';
+import RateCardModal from './RateCardModal';
 
 // Helper function to get currency symbol
 const getCurrencySymbol = (currency?: string): string => {
@@ -21,6 +22,23 @@ const getCurrencySymbol = (currency?: string): string => {
 const ServicesSection: React.FC = () => {
   const { data: servicesData, isLoading, error } = useGetServicesQuery({});
   const services: Service[] = servicesData || [];
+  const [showAll, setShowAll] = useState(false);
+  const [isRateCardOpen, setIsRateCardOpen] = useState(false);
+
+  // Show only 4 services initially, or all if showAll is true
+  const displayedServices = showAll ? services : services.slice(0, 4);
+  const hasMoreServices = services.length > 4;
+
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const element = document.querySelector(targetId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -58,14 +76,17 @@ const ServicesSection: React.FC = () => {
             </p>
           </div>
           <div className="hidden md:block">
-            <a href="#contact" className="text-[10px] uppercase tracking-[0.4em] text-champagne border-b border-champagne pb-2 hover:text-zinc-900 hover:border-zinc-900 transition-all font-bold">
+            <button 
+              onClick={() => setIsRateCardOpen(true)}
+              className="text-[10px] uppercase tracking-[0.4em] text-champagne border-b border-champagne pb-2 hover:text-zinc-900 hover:border-zinc-900 transition-all font-bold cursor-pointer bg-transparent"
+            >
               Request Rate Card
-            </a>
+            </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          {services.map((service, idx) => (
+          {displayedServices.map((service, idx) => (
             <div 
               key={idx} 
               className="group p-12 border border-zinc-200 bg-white hover:border-champagne transition-all duration-500 relative overflow-hidden shadow-sm hover:shadow-xl"
@@ -81,14 +102,37 @@ const ServicesSection: React.FC = () => {
                 <span className="text-[11px] uppercase tracking-[0.3em] text-zinc-400 italic">
                   Starting from {getCurrencySymbol(service.currency)}{service.priceStart}
                 </span>
-                <button className="text-[10px] uppercase tracking-[0.3em] text-zinc-900 font-bold group-hover:translate-x-2 transition-transform duration-300">
+                <a 
+                  href="#contact"
+                  onClick={(e) => handleSmoothScroll(e, '#contact')}
+                  className="text-[10px] uppercase tracking-[0.3em] text-zinc-900 font-bold group-hover:translate-x-2 transition-transform duration-300 cursor-pointer"
+                >
                   Enquire &rarr;
-                </button>
+                </a>
               </div>
             </div>
           ))}
         </div>
+
+        {/* Toggle button - only show if there are more than 4 services */}
+        {hasMoreServices && (
+          <div className="flex justify-center mt-16">
+            <button
+              onClick={() => setShowAll(!showAll)}
+              className="cursor-pointer group inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-champagne text-champagne text-[10px] uppercase tracking-[0.4em] font-bold transition-all duration-300 hover:bg-champagne hover:text-white"
+            >
+              {showAll ? 'Show Less' : `View All Services (${services.length})`}
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Rate Card Modal */}
+      <RateCardModal 
+        isOpen={isRateCardOpen}
+        onClose={() => setIsRateCardOpen(false)}
+        services={services}
+      />
     </section>
   );
 };

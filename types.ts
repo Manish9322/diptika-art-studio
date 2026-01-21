@@ -25,6 +25,8 @@ export interface Service {
   currency?: string;
   image?: string;
   order?: number;
+  priceEnd?: string;
+  features?: string[];
 }
 
 export interface StudioSettings {
