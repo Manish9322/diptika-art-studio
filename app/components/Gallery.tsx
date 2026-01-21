@@ -81,7 +81,7 @@ const Gallery: React.FC = () => {
   if (isLoading) {
     return (
       <section id="gallery" className="py-32 px-8 bg-[#fdfaf6]">
-        <div className="max-w-7xl mx-auto flex items-center justify-center min-h-[400px]">
+        <div className="max-w-7xl mx-auto flex items-center justify-center min-h-400px">
           <div className="text-center">
             <Loader2 size={48} className="mx-auto text-champagne mb-6 animate-spin" />
             <p className="text-zinc-300 text-[10px] uppercase tracking-[0.4em] font-bold">Loading gallery...</p>
@@ -94,7 +94,7 @@ const Gallery: React.FC = () => {
   if (error) {
     return (
       <section id="gallery" className="py-32 px-8 bg-[#fdfaf6]">
-        <div className="max-w-7xl mx-auto flex items-center justify-center min-h-[400px]">
+        <div className="max-w-7xl mx-auto flex items-center justify-center min-h-400px">
           <div className="text-center">
             <p className="text-red-500 text-sm">Failed to load gallery. Please try again later.</p>
           </div>
@@ -108,7 +108,6 @@ const Gallery: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-24">
           <h3 className="font-serif text-zinc-900 text-4xl md:text-5xl mb-4">Curated Portfolio</h3>
-          <div className="w-24 h-[1px] bg-champagne mx-auto mb-6"></div>
           <p className="text-zinc-500 max-w-xl mx-auto text-sm leading-relaxed tracking-wide">
             A selection of my most prestigious works, ranging from traditional bridal artistry to contemporary editorial expressions.
           </p>
@@ -121,7 +120,7 @@ const Gallery: React.FC = () => {
               className="group cursor-pointer"
               onClick={() => setSelectedArtwork(art)}
             >
-              <div className="relative aspect-[3/4] overflow-hidden border border-zinc-100 shadow-sm transition-all duration-500 group-hover:shadow-2xl">
+              <div className="relative aspect-3/4 overflow-hidden border border-zinc-100 shadow-sm transition-all duration-500 group-hover:shadow-2xl">
                 <img 
                   src={art.images[0]} 
                   alt={art.title} 
@@ -165,7 +164,7 @@ const Gallery: React.FC = () => {
 
       {/* Detail Modal */}
       {selectedArtwork && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4 md:p-12">
           <div className="absolute inset-0 bg-zinc-900/60 backdrop-blur-md" onClick={() => setSelectedArtwork(null)}></div>
           
           <div className="relative w-full max-w-6xl bg-white shadow-2xl overflow-hidden flex flex-col lg:flex-row max-h-[90vh]">

@@ -2,7 +2,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Loader2 } from 'lucide-react';
 
 const ContactForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -15,37 +14,7 @@ const ContactForm: React.FC = () => {
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isAiThinking, setIsAiThinking] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-
-  const handleAiRefinement = async () => {
-    if (!formData.message.trim()) {
-      setErrors({ message: 'Please write a rough idea first so the AI can refine it.' });
-      return;
-    }
-
-    setIsAiThinking(true);
-    try {
-      // AI refinement would call your API endpoint here
-      // For now, just add a note that this feature is coming soon
-      setErrors({ message: 'AI refinement feature coming soon!' });
-      
-      // Example of what the API call would look like:
-      // const response = await fetch('/api/refine-message', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ message: formData.message })
-      // });
-      // const data = await response.json();
-      // if (data.refinedMessage) {
-      //   setFormData(prev => ({ ...prev, message: data.refinedMessage }));
-      // }
-    } catch (err) {
-      console.error("AI refinement failed", err);
-      setErrors({ message: 'AI refinement failed. Please try again.' });
-    } finally {
-      setIsAiThinking(false);
-    }
-  };
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
@@ -113,9 +82,12 @@ const ContactForm: React.FC = () => {
   return (
     <section id="contact" className="py-32 px-8 bg-[#fdfaf6]">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-20">
+        <div className="text-center mb-24">
           <span className="text-[11px] uppercase tracking-[0.6em] text-champagne block mb-4 font-bold">Engagement</span>
-          <h3 className="font-serif text-zinc-900 text-4xl md:text-5xl">Work With Me</h3>
+          <h3 className="font-serif text-zinc-900 text-4xl md:text-5xl mb-4">Work With Me</h3>
+          <p className="text-zinc-500 max-w-xl mx-auto text-sm leading-relaxed tracking-wide">
+            Share your vision and let's create something extraordinary together. Fill out the form below and I'll get back to you within 24 hours.
+          </p>
         </div>
 
         <div className="relative">
@@ -189,19 +161,8 @@ const ContactForm: React.FC = () => {
               {errors.eventDate && <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest">{errors.eventDate}</p>}
             </div>
 
-            <div className="space-y-3 relative">
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-[10px] uppercase tracking-[0.3em] text-zinc-400 block font-bold">Your Vision</label>
-                <button 
-                  type="button"
-                  onClick={handleAiRefinement}
-                  disabled={isAiThinking}
-                  className="flex items-center space-x-2 text-[8px] uppercase tracking-widest font-bold text-champagne hover:text-zinc-900 transition-colors disabled:opacity-50"
-                >
-                  {isAiThinking ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
-                  <span>Refine with AI</span>
-                </button>
-              </div>
+            <div className="space-y-3">
+              <label className="text-[10px] uppercase tracking-[0.3em] text-zinc-400 block font-bold">Your Vision</label>
               <textarea 
                 rows={4}
                 value={formData.message}
