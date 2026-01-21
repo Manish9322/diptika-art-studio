@@ -9,12 +9,16 @@
   --nude: #f9f5f0;
 }
 
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
 /* Body default */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-montserrat), sans-serif;
-  scroll-behavior: smooth;
 }
 
 /* Serif headings */

@@ -2,6 +2,17 @@
 import React from 'react';
 
 const Hero: React.FC = () => {
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const element = document.querySelector(targetId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
+
   return (
     <section className="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#fdfaf6]">
       {/* Cinematic Background */}
@@ -30,15 +41,23 @@ const Hero: React.FC = () => {
         
         <div className="hero-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <p className="text-zinc-500 text-sm md:text-lg max-w-2xl mx-auto mb-12 leading-relaxed tracking-wide font-light">
-            Elevating heritage traditions through contemporary vision. Specializing in intricate bridal Mehndi, sculptural nail couture, and high-fashion editorial makeup for the most discerning clients across the globe.
+            Elevating heritage traditions through contemporary vision. Specializing in intricate bridal Mehndi, rangoli artistry, nail couture, and high-fashion editorial makeup for the discerning clients across the globe.
           </p>
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-center gap-6 hero-fade-in-up" style={{ animationDelay: '0.8s' }}>
-          <a href="#gallery" className="px-10 py-4 border border-champagne text-zinc-900 text-[10px] uppercase tracking-[0.4em] hover:bg-champagne hover:text-white transition-all duration-500 font-bold">
+          <a 
+            href="#gallery" 
+            onClick={(e) => handleSmoothScroll(e, '#gallery')}
+            className="px-10 py-4 border border-champagne text-zinc-900 text-[10px] uppercase tracking-[0.4em] hover:bg-champagne hover:text-white transition-all duration-500 font-bold"
+          >
             View Collection
           </a>
-          <a href="#contact" className="px-10 py-4 bg-zinc-900 text-white text-[10px] uppercase tracking-[0.4em] hover:bg-zinc-800 transition-all duration-500 font-bold shadow-lg">
+          <a 
+            href="#contact" 
+            onClick={(e) => handleSmoothScroll(e, '#contact')}
+            className="px-10 py-4 bg-zinc-900 text-white text-[10px] uppercase tracking-[0.4em] hover:bg-zinc-800 transition-all duration-500 font-bold shadow-lg"
+          >
             Private Inquiry
           </a>
         </div>
