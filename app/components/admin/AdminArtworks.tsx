@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useMemo, useRef } from 'react';
-import { Save, Trash2, Plus, ImageIcon, X, Search, Edit2, ChevronLeft, ChevronRight, Upload, Loader2, Layers, ExternalLink, ChevronUp, ChevronDown } from 'lucide-react';
+import { Save, Trash2, Plus, ImageIcon, X, Search, Edit2, ChevronLeft, ChevronRight, Upload, Loader2, Layers, ExternalLink, ChevronUp, ChevronDown, Eye, EyeOff } from 'lucide-react';
 // Fixed: Page type should be imported from types.ts
 import { Page } from '../../../types';
 import { Artwork } from '../../../types';
@@ -231,6 +231,29 @@ const AdminArtworks: React.FC<AdminArtworksProps> = ({ onNavigate }) => {
     }
   };
 
+  const handleToggleVisibility = async (artId: string) => {
+    if (editingId) return; // Don't allow toggle while editing
+    
+    const artwork = artworks.find(art => getArtworkId(art) === artId);
+    if (!artwork) return;
+    
+    try {
+      setError(null);
+      
+      await updateArtwork({ 
+        id: artId,
+        ...artwork,
+        active: !(artwork as any).active
+      }).unwrap();
+      
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 2000);
+    } catch (err: any) {
+      console.error('Error toggling visibility:', err);
+      setError(err?.data?.message || 'Failed to toggle visibility. Please try again.');
+    }
+  };
+
   return (
     <div className="space-y-6 sm:space-y-12 animate-fade-in">
       {/* Error Message */}
@@ -294,8 +317,7 @@ const AdminArtworks: React.FC<AdminArtworksProps> = ({ onNavigate }) => {
               <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold">Media</th>
               <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold">Piece</th>
               <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold">Artistic Detail</th>
-              <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold">Narrative</th>
-              <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold text-right">Actions</th>
+              <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold">Narrative</th>                <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold text-center">Visibility</th>              <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-50">
@@ -407,6 +429,20 @@ const AdminArtworks: React.FC<AdminArtworksProps> = ({ onNavigate }) => {
                      ) : (
                        <span className="text-xs text-zinc-400 font-light leading-relaxed line-clamp-3 italic">"{displayArt.description}"</span>
                      )}
+                  </td>
+                  <td className="px-8 py-6 align-top text-center">
+                    <button 
+                      onClick={() => handleToggleVisibility(artId)} 
+                      disabled={editingId !== null}
+                      className={`p-2 transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+                        (displayArt as any).active !== false 
+                          ? 'text-green-500 hover:text-green-700' 
+                          : 'text-zinc-300 hover:text-zinc-500'
+                      }`}
+                      title={(displayArt as any).active !== false ? 'Visible to public' : 'Hidden from public'}
+                    >
+                      {(displayArt as any).active !== false ? <Eye size={18} /> : <EyeOff size={18} />}
+                    </button>
                   </td>
                   <td className="px-8 py-6 align-top text-right space-x-2">
                     <button onClick={() => isEditing ? handleSave() : handleEdit(art)} disabled={isUpdating} className="p-2 text-zinc-300 hover:text-zinc-900 transition-colors disabled:opacity-50">
@@ -552,24 +588,41 @@ const AdminArtworks: React.FC<AdminArtworksProps> = ({ onNavigate }) => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-end space-x-4 border-t border-zinc-50 pt-4">
-                {isEditing ? (
-                  <>
-                    <button onClick={handleSave} disabled={isUpdating} className="px-6 py-2 bg-champagne text-[10px] uppercase tracking-[0.2em] text-white font-bold hover:bg-champagne/90 transition-all rounded-sm disabled:opacity-50">
-                      {isUpdating ? 'Saving...' : 'Save Changes'}
-                    </button>
-                    <button onClick={handleCancelEdit} className="px-6 py-2 bg-zinc-100 text-[10px] uppercase tracking-[0.2em] text-zinc-600 font-bold hover:bg-zinc-200 transition-all rounded-sm">
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <button onClick={() => handleEdit(art)} className="px-6 py-2 bg-zinc-50 text-[10px] uppercase tracking-[0.2em] text-zinc-900 font-bold hover:bg-champagne hover:text-white transition-all rounded-sm">
-                    Edit Detail
+              <div className="flex items-center justify-between border-t border-zinc-50 pt-4">
+                <div className="flex items-center space-x-2">
+                  <button 
+                    onClick={() => handleToggleVisibility(artId)} 
+                    disabled={editingId !== null}
+                    className={`px-4 py-2 rounded-sm text-[9px] uppercase tracking-[0.2em] font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center space-x-2 ${
+                      (displayArt as any).active !== false 
+                        ? 'bg-green-50 text-green-600 hover:bg-green-100' 
+                        : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100'
+                    }`}
+                    title={(displayArt as any).active !== false ? 'Visible to public' : 'Hidden from public'}
+                  >
+                    {(displayArt as any).active !== false ? <Eye size={14} /> : <EyeOff size={14} />}
+                    <span>{(displayArt as any).active !== false ? 'Visible' : 'Hidden'}</span>
                   </button>
-                )}
-                <button onClick={() => setDeleteId(artId)} className="p-2 text-zinc-200 hover:text-red-500 transition-colors">
-                  <Trash2 size={16} />
-                </button>
+                </div>
+                <div className="flex items-center space-x-4">
+                  {isEditing ? (
+                    <>
+                      <button onClick={handleSave} disabled={isUpdating} className="px-6 py-2 bg-champagne text-[10px] uppercase tracking-[0.2em] text-white font-bold hover:bg-champagne/90 transition-all rounded-sm disabled:opacity-50">
+                        {isUpdating ? 'Saving...' : 'Save Changes'}
+                      </button>
+                      <button onClick={handleCancelEdit} className="px-6 py-2 bg-zinc-100 text-[10px] uppercase tracking-[0.2em] text-zinc-600 font-bold hover:bg-zinc-200 transition-all rounded-sm">
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <button onClick={() => handleEdit(art)} className="px-6 py-2 bg-zinc-50 text-[10px] uppercase tracking-[0.2em] text-zinc-900 font-bold hover:bg-champagne hover:text-white transition-all rounded-sm">
+                      Edit Detail
+                    </button>
+                  )}
+                  <button onClick={() => setDeleteId(artId)} className="p-2 text-zinc-200 hover:text-red-500 transition-colors">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
             </div>
           );

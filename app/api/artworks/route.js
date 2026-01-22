@@ -14,7 +14,7 @@ export async function GET(request) {
     const featured = searchParams.get('featured');
     
     // Build query
-    let query = { active: true };
+    let query = {};
     
     if (search) {
       query.$or = [

@@ -9,7 +9,9 @@ import ArtworkModal from './ArtworkModal';
 
 const Gallery: React.FC = () => {
   const { data: artworksData, isLoading, error } = useGetArtworksQuery({ limit: 7 });
-  const allArtworks: Artwork[] = artworksData || [];
+  const allArtworksRaw: Artwork[] = artworksData || [];
+  // Filter to only show active artworks
+  const allArtworks = allArtworksRaw.filter(art => (art as any).active !== false);
   const artworks = allArtworks.slice(0, 6); // Display only first 6
   const hasMore = allArtworks.length > 6;
   const [selectedArtwork, setSelectedArtwork] = useState<Artwork | null>(null);

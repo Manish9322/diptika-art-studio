@@ -108,7 +108,7 @@ export const api = createApi({
     }),
     updateArtwork: builder.mutation({
       query: ({ id, ...artwork }) => ({
-        url: `/artworks/${id}`,
+        url: `/artworks?id=${id}`,
         method: "PUT",
         body: artwork,
       }),

@@ -10,7 +10,10 @@ const Footer: React.FC = () => {
   const { data: profileData } = useGetArtistProfileQuery(undefined);
   const profile = profileData;
   const { data: servicesData } = useGetServicesQuery({});
-  const services = (servicesData || []).slice(0, 5);
+  // Filter to only show active services
+  const allServices = servicesData || [];
+  const activeServices = allServices.filter((s: any) => s.active !== false);
+  const services = activeServices.slice(0, 5);
 
   return (
     <footer className="bg-white py-24 px-8 border-t border-zinc-100">

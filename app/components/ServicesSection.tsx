@@ -21,9 +21,12 @@ const getCurrencySymbol = (currency?: string): string => {
 
 const ServicesSection: React.FC = () => {
   const { data: servicesData, isLoading, error } = useGetServicesQuery({});
-  const services: Service[] = servicesData || [];
+  const allServices: Service[] = servicesData || [];
   const [showAll, setShowAll] = useState(false);
   const [isRateCardOpen, setIsRateCardOpen] = useState(false);
+
+  // Filter to only show active services
+  const services = allServices.filter(service => (service as any).active !== false);
 
   // Show only 4 services initially, or all if showAll is true
   const displayedServices = showAll ? services : services.slice(0, 4);

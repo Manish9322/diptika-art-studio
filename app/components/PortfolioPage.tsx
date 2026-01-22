@@ -32,8 +32,13 @@ const PortfolioPage: React.FC = () => {
   const { data: artworksData, isLoading: artworksLoading } = useGetArtworksQuery({});
   const { data: servicesData } = useGetServicesQuery({});
 
-  const artworks: Artwork[] = artworksData || [];
-  const services = servicesData || [];
+  const allArtworksRaw: Artwork[] = artworksData || [];
+  // Filter to only show active artworks
+  const artworks = allArtworksRaw.filter(art => (art as any).active !== false);
+  const allServices = servicesData || [];
+  
+  // Filter to only show active services
+  const services = allServices.filter((s: any) => s.active !== false);
 
   // Set dynamic categories when services load
   useEffect(() => {

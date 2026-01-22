@@ -27,6 +27,7 @@ export interface Service {
   order?: number;
   priceEnd?: string;
   features?: string[];
+  active?: boolean;
 }
 
 export interface StudioSettings {

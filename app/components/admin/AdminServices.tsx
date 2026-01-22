@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useMemo, useRef } from 'react';
-import { Save, Trash2, Plus, Search, Edit2, ChevronLeft, ChevronRight, Upload, Image as ImageIcon, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
+import { Save, Trash2, Plus, Search, Edit2, ChevronLeft, ChevronRight, Upload, Image as ImageIcon, Loader2, ChevronUp, ChevronDown, Eye, EyeOff } from 'lucide-react';
 // Fixed: Page type should be imported from types.ts
 import { Page } from '../../../types';
 import { Service } from '../../../types';
@@ -151,6 +151,29 @@ const AdminServices: React.FC<AdminServicesProps> = ({ onNavigate }) => {
     }
   };
 
+  const handleToggleVisibility = async (index: number) => {
+    if (editingIndex !== null) return; // Don't allow toggle while editing
+    
+    const absoluteIndex = (currentPage - 1) * itemsPerPage + index;
+    const serviceToToggle = filteredServices[absoluteIndex];
+    
+    try {
+      setError(null);
+      
+      await updateService({ 
+        id: (serviceToToggle as any)._id, 
+        ...serviceToToggle,
+        active: !(serviceToToggle as any).active
+      }).unwrap();
+      
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 2000);
+    } catch (err: any) {
+      console.error('Error toggling visibility:', err);
+      setError(err?.data?.message || 'Failed to toggle visibility. Please try again.');
+    }
+  };
+
   const handleReorder = async (index: number, direction: 'up' | 'down') => {
     if (editingIndex !== null) return; // Don't allow reorder while editing
     
@@ -247,6 +270,7 @@ const AdminServices: React.FC<AdminServicesProps> = ({ onNavigate }) => {
                 <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold">Identity</th>
                 <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold">Baseline Price</th>
                 <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold">Brief</th>
+                <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold text-center">Visibility</th>
                 <th className="px-8 py-5 text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold text-right">Actions</th>
               </tr>
             </thead>
@@ -323,6 +347,20 @@ const AdminServices: React.FC<AdminServicesProps> = ({ onNavigate }) => {
                     </td>
                     <td className="px-8 py-6">
                        {isEditing ? <textarea value={displayService.description} onChange={(e) => handleUpdateService(idx, 'description', e.target.value)} className="w-full bg-transparent border-b border-champagne text-xs text-zinc-400 focus:outline-none resize-none" rows={2} /> : <span className="text-xs text-zinc-400 font-light leading-relaxed truncate max-w-xs block">{displayService.description}</span>}
+                    </td>
+                    <td className="px-8 py-6 text-center">
+                      <button 
+                        onClick={() => handleToggleVisibility(idx)} 
+                        disabled={editingIndex !== null}
+                        className={`p-2 transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
+                          (displayService as any).active !== false 
+                            ? 'text-green-500 hover:text-green-700' 
+                            : 'text-zinc-300 hover:text-zinc-500'
+                        }`}
+                        title={(displayService as any).active !== false ? 'Visible to public' : 'Hidden from public'}
+                      >
+                        {(displayService as any).active !== false ? <Eye size={18} /> : <EyeOff size={18} />}
+                      </button>
                     </td>
                     <td className="px-8 py-6 text-right space-x-3">
                       <button onClick={() => isEditing ? handleSave() : handleEdit(idx)} disabled={isSaving} className="p-2 text-zinc-300 hover:text-zinc-900 transition-colors disabled:opacity-50">{isEditing ? <Save size={16} /> : <Edit2 size={16} />}</button>
@@ -421,9 +459,26 @@ const AdminServices: React.FC<AdminServicesProps> = ({ onNavigate }) => {
                   {isEditing ? <textarea value={displayService.description} onChange={(e) => handleUpdateService(idx, 'description', e.target.value)} className="w-full bg-zinc-50 border-none px-4 py-3 text-xs text-zinc-500 font-light leading-relaxed focus:ring-1 focus:ring-champagne/20 outline-none rounded-sm" rows={4} /> : <p className="text-xs text-zinc-400 font-light leading-relaxed italic border-l border-zinc-50 pl-4">"{displayService.description}"</p>}
                 </div>
 
-                <div className="flex items-center justify-end space-x-4 border-t border-zinc-50 pt-4">
-                  <button onClick={() => isEditing ? handleSave() : handleEdit(idx)} disabled={isSaving} className="px-6 py-2 bg-zinc-50 text-[10px] uppercase tracking-[0.2em] text-zinc-900 font-bold hover:bg-champagne hover:text-white transition-all rounded-sm disabled:opacity-50">{isEditing ? 'Save' : 'Edit Detail'}</button>
-                  <button onClick={() => setDeleteIndex(idx)} className="p-2 text-zinc-200 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                <div className="flex items-center justify-between border-t border-zinc-50 pt-4">
+                  <div className="flex items-center space-x-2">
+                    <button 
+                      onClick={() => handleToggleVisibility(idx)} 
+                      disabled={editingIndex !== null}
+                      className={`px-4 py-2 rounded-sm text-[9px] uppercase tracking-[0.2em] font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center space-x-2 ${
+                        (displayService as any).active !== false 
+                          ? 'bg-green-50 text-green-600 hover:bg-green-100' 
+                          : 'bg-zinc-50 text-zinc-400 hover:bg-zinc-100'
+                      }`}
+                      title={(displayService as any).active !== false ? 'Visible to public' : 'Hidden from public'}
+                    >
+                      {(displayService as any).active !== false ? <Eye size={14} /> : <EyeOff size={14} />}
+                      <span>{(displayService as any).active !== false ? 'Visible' : 'Hidden'}</span>
+                    </button>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <button onClick={() => isEditing ? handleSave() : handleEdit(idx)} disabled={isSaving} className="px-6 py-2 bg-zinc-50 text-[10px] uppercase tracking-[0.2em] text-zinc-900 font-bold hover:bg-champagne hover:text-white transition-all rounded-sm disabled:opacity-50">{isEditing ? 'Save' : 'Edit Detail'}</button>
+                    <button onClick={() => setDeleteIndex(idx)} className="p-2 text-zinc-200 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                  </div>
                 </div>
               </div>
             );
