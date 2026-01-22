@@ -72,7 +72,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin"
+                placeholder="enter your studio-id here"
                 className="w-full pl-8 py-3 bg-transparent border-b border-zinc-100 text-sm focus:outline-none focus:border-champagne transition-colors"
                 required
               />
@@ -87,7 +87,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="admin"
+                placeholder="enter your password here"
                 className="w-full pl-8 pr-10 py-3 bg-transparent border-b border-zinc-100 text-sm focus:outline-none focus:border-champagne transition-colors"
                 required
               />
