@@ -170,8 +170,8 @@ export async function DELETE(request) {
       }, { status: 400 });
     }
     
-    // Find and delete service
-    const service = await Service.findByIdAndDelete(id);
+    // Find the service first to get its title
+    const service = await Service.findById(id);
     
     if (!service) {
       return NextResponse.json({
@@ -179,6 +179,20 @@ export async function DELETE(request) {
         message: 'Service not found'
       }, { status: 404 });
     }
+    
+    // Check if any artworks are using this service category
+    const Artwork = require('@/models/artwork.model').default;
+    const artworksUsingService = await Artwork.countDocuments({ category: service.title });
+    
+    if (artworksUsingService > 0) {
+      return NextResponse.json({
+        success: false,
+        message: `Cannot delete this service category because ${artworksUsingService} artwork${artworksUsingService > 1 ? 's are' : ' is'} using it. Please reassign or delete those artworks first.`
+      }, { status: 400 });
+    }
+    
+    // If no artworks are using it, proceed with deletion
+    await Service.findByIdAndDelete(id);
     
     return NextResponse.json({
       success: true,

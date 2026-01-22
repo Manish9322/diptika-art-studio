@@ -85,6 +85,7 @@ const AdminServices: React.FC<AdminServicesProps> = ({ onNavigate }) => {
       } catch (err: any) {
         console.error('Error deleting service:', err);
         setError(err?.data?.message || 'Failed to delete service. Please try again.');
+        setTimeout(() => setError(null), 8000); // Clear error after 8 seconds
       } finally {
         setDeleteIndex(null);
       }
