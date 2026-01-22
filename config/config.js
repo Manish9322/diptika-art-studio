@@ -6,3 +6,5 @@ export const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || "";
 export const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || "";
 export const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
+export const ADMIN_ID = process.env.ADMIN_ID || "";
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/utils/db';
 import Artwork from '@/models/artwork.model';
+import { verifyAdminToken } from '@/utils/authMiddleware';
 
 // GET - Fetch all artworks with optional filters
 export async function GET(request) {
@@ -57,9 +58,15 @@ export async function GET(request) {
   }
 }
 
-// POST - Create a new artwork
+// POST - Create a new artwork (Protected)
 export async function POST(request) {
   try {
+    // Verify admin token
+    const authResult = verifyAdminToken(request);
+    if (authResult.error) {
+      return authResult.response;
+    }
+    
     await connectDB();
     
     const body = await request.json();
@@ -100,9 +107,15 @@ export async function POST(request) {
   }
 }
 
-// PUT - Update an artwork
+// PUT - Update an artwork (Protected)
 export async function PUT(request) {
   try {
+    // Verify admin token
+    const authResult = verifyAdminToken(request);
+    if (authResult.error) {
+      return authResult.response;
+    }
+    
     await connectDB();
     
     const { searchParams } = new URL(request.url);
@@ -155,9 +168,15 @@ export async function PUT(request) {
   }
 }
 
-// DELETE - Delete an artwork
+// DELETE - Delete an artwork (Protected)
 export async function DELETE(request) {
   try {
+    // Verify admin token
+    const authResult = verifyAdminToken(request);
+    if (authResult.error) {
+      return authResult.response;
+    }
+    
     await connectDB();
     
     const { searchParams } = new URL(request.url);

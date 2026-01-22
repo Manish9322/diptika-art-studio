@@ -24,6 +24,26 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onNavi
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      // Call logout API
+      await fetch('/api/auth/admin/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        }
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Clear local storage
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      // Call the parent logout handler
+      onLogout();
+    }
+  };
+
   const menuItems = [
     { id: 'admin-dashboard', label: 'Overview', icon: <LayoutGrid size={18} />, target: 'admin-dashboard' as Page },
     { id: 'admin-contacts', label: 'Inquiries', icon: <MessageSquare size={18} />, target: 'admin-contacts' as Page },
@@ -110,7 +130,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onNavi
       <ConfirmationModal 
         isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}
-        onConfirm={onLogout}
+        onConfirm={handleLogout}
         title="End Studio Session"
         message="Are you sure you wish to log out?"
         confirmText="Log Out"

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/utils/db';
 import Service from '@/models/service.model';
+import { verifyAdminToken } from '@/utils/authMiddleware';
 
 // GET - Fetch all services with optional filters
 export async function GET(request) {
@@ -46,9 +47,15 @@ export async function GET(request) {
   }
 }
 
-// POST - Create a new service
+// POST - Create a new service (Protected)
 export async function POST(request) {
   try {
+    // Verify admin token
+    const authResult = verifyAdminToken(request);
+    if (authResult.error) {
+      return authResult.response;
+    }
+    
     await connectDB();
     
     const body = await request.json();
@@ -89,9 +96,15 @@ export async function POST(request) {
   }
 }
 
-// PUT - Update a service
+// PUT - Update a service (Protected)
 export async function PUT(request) {
   try {
+    // Verify admin token
+    const authResult = verifyAdminToken(request);
+    if (authResult.error) {
+      return authResult.response;
+    }
+    
     await connectDB();
     
     const { searchParams } = new URL(request.url);
@@ -155,9 +168,15 @@ export async function PUT(request) {
   }
 }
 
-// DELETE - Delete a service
+// DELETE - Delete a service (Protected)
 export async function DELETE(request) {
   try {
+    // Verify admin token
+    const authResult = verifyAdminToken(request);
+    if (authResult.error) {
+      return authResult.response;
+    }
+    
     await connectDB();
     
     const { searchParams } = new URL(request.url);

@@ -13,14 +13,39 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simplified credentials as requested: admin / admin
-    if (email === 'admin' && password === 'admin') {
-      onLogin();
-    } else {
-      setError('Invalid credentials for Diptika Art Studio access.');
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/auth/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Store token in localStorage
+        localStorage.setItem('adminToken', data.data.token);
+        localStorage.setItem('adminUser', JSON.stringify(data.data.user));
+        
+        // Call onLogin callback
+        onLogin();
+      } else {
+        setError(data.message || 'Invalid credentials for Diptika Art Studio access.');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Connection error. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -79,16 +104,13 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
 
           <button 
             type="submit"
-            className="w-full py-4 bg-zinc-900 text-white text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-champagne transition-all duration-500 flex items-center justify-center space-x-3 group"
+            disabled={loading}
+            className="w-full py-4 bg-zinc-900 text-white text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-champagne transition-all duration-500 flex items-center justify-center space-x-3 group disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span>Unlock Dashboard</span>
-            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            <span>{loading ? 'Authenticating...' : 'Unlock Dashboard'}</span>
+            {!loading && <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />}
           </button>
         </form>
-        
-        <p className="mt-12 text-center text-[9px] uppercase tracking-[0.2em] text-zinc-300 font-medium">
-          Note: Use <span className="text-zinc-500 font-bold">admin</span> / <span className="text-zinc-500 font-bold">admin</span>
-        </p>
       </div>
     </div>
   );

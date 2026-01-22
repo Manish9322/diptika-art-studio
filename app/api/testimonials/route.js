@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/utils/db';
 import Testimonial from '@/models/testimonial.model';
+import { verifyAdminToken } from '@/utils/authMiddleware';
 
 // GET - Fetch all testimonials or a specific testimonial
 export async function GET(request) {
@@ -57,9 +58,15 @@ export async function GET(request) {
   }
 }
 
-// POST - Create a new testimonial
+// POST - Create a new testimonial (Protected)
 export async function POST(request) {
   try {
+    // Verify admin token
+    const authResult = verifyAdminToken(request);
+    if (authResult.error) {
+      return authResult.response;
+    }
+    
     await connectDB();
     
     const body = await request.json();
@@ -92,9 +99,15 @@ export async function POST(request) {
   }
 }
 
-// PUT - Update a testimonial
+// PUT - Update a testimonial (Protected)
 export async function PUT(request) {
   try {
+    // Verify admin token
+    const authResult = verifyAdminToken(request);
+    if (authResult.error) {
+      return authResult.response;
+    }
+    
     await connectDB();
     
     const { searchParams } = new URL(request.url);
@@ -137,9 +150,15 @@ export async function PUT(request) {
   }
 }
 
-// DELETE - Delete a testimonial
+// DELETE - Delete a testimonial (Protected)
 export async function DELETE(request) {
   try {
+    // Verify admin token
+    const authResult = verifyAdminToken(request);
+    if (authResult.error) {
+      return authResult.response;
+    }
+    
     await connectDB();
     
     const { searchParams } = new URL(request.url);
