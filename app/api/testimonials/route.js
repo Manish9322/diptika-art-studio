@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import connectDB from '@/utils/db';
+import _db from '@/utils/db';
 import Testimonial from '@/models/testimonial.model';
 import { verifyAdminToken } from '@/utils/authMiddleware';
 
 // GET - Fetch all testimonials or a specific testimonial
 export async function GET(request) {
   try {
-    await connectDB();
+    await _db();
     
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -67,7 +67,7 @@ export async function POST(request) {
       return authResult.response;
     }
     
-    await connectDB();
+    await _db();
     
     const body = await request.json();
     
@@ -108,7 +108,7 @@ export async function PUT(request) {
       return authResult.response;
     }
     
-    await connectDB();
+    await _db();
     
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -159,7 +159,7 @@ export async function DELETE(request) {
       return authResult.response;
     }
     
-    await connectDB();
+    await _db();
     
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

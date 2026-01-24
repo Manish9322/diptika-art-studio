@@ -1,6 +1,6 @@
-import connectDB from "../../../utils/db";
+import _db from "../../../utils/db";
 import { NextResponse } from "next/server";
-await connectDB();
+await _db();
 export async function GET() {
     
     return NextResponse.json({ title: "DB Connection", message: "Connected to Database successfully", status: 200 });

@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import connectDB from '@/utils/db';
+import _db from '@/utils/db';
 import Artwork from '@/models/artwork.model';
 import { verifyAdminToken } from '@/utils/authMiddleware';
 
 // GET - Fetch all artworks with optional filters
 export async function GET(request) {
   try {
-    await connectDB();
+    await _db();
     
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
@@ -67,7 +67,7 @@ export async function POST(request) {
       return authResult.response;
     }
     
-    await connectDB();
+    await _db();
     
     const body = await request.json();
     
@@ -116,7 +116,7 @@ export async function PUT(request) {
       return authResult.response;
     }
     
-    await connectDB();
+    await _db();
     
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -177,7 +177,7 @@ export async function DELETE(request) {
       return authResult.response;
     }
     
-    await connectDB();
+    await _db();
     
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import connectDB from '@/utils/db';
+import _db from '@/utils/db';
 import Contact from '@/models/contact.model';
 
 // GET - Fetch all contact requests
 export async function GET(request) {
   try {
-    await connectDB();
+    await _db();
     
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
@@ -58,7 +58,7 @@ export async function GET(request) {
 // POST - Create new contact request
 export async function POST(request) {
   try {
-    await connectDB();
+    await _db();
     
     const body = await request.json();
     
@@ -111,7 +111,7 @@ export async function POST(request) {
 // PATCH - Update contact request status
 export async function PATCH(request) {
   try {
-    await connectDB();
+    await _db();
     
     const body = await request.json();
     const { id, status } = body;
@@ -164,7 +164,7 @@ export async function PATCH(request) {
 // DELETE - Delete contact request
 export async function DELETE(request) {
   try {
-    await connectDB();
+    await _db();
     
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');

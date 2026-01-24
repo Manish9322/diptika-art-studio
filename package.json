@@ -11,6 +11,7 @@
   "dependencies": {
     "@google/genai": "^1.37.0",
     "@reduxjs/toolkit": "^2.11.2",
+    "cloudinary": "^2.9.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.562.0",
     "mongoose": "^9.1.4",
