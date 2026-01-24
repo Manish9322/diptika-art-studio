@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import _db from '../../../utils/db';
 import Profile from '../../../models/profile.model';
+import { uploadSingleImage, uploadBase64Image } from '../../../utils/cloudinary';
 
 // GET: Retrieve the active artist profile
 export async function GET(request) {
@@ -48,38 +49,108 @@ export async function PUT(request) {
   try {
     await _db();
     
-    const body = await request.json();
+    // Check content type to handle both JSON and FormData
+    const contentType = request.headers.get('content-type') || '';
+    
+    let name, title, bio, email, phone, experience, location, mapLocation, socialLinks;
+    let profileImageUrl, aboutPageImageUrl;
+    
+    if (contentType.includes('multipart/form-data')) {
+      // Handle FormData (with image uploads)
+      const formData = await request.formData();
+      
+      // Extract form fields
+      name = formData.get('name');
+      title = formData.get('title');
+      bio = formData.get('bio');
+      email = formData.get('email');
+      phone = formData.get('phone') || '';
+      experience = formData.get('experience');
+      location = formData.get('location') || '';
+      mapLocation = formData.get('mapLocation') || '';
+      const socialLinksJson = formData.get('socialLinks');
+      const existingProfileImage = formData.get('existingProfileImage');
+      const existingAboutPageImage = formData.get('existingAboutPageImage');
+      
+      // Parse social links
+      socialLinks = {};
+      if (socialLinksJson) {
+        try {
+          socialLinks = JSON.parse(socialLinksJson);
+        } catch (e) {
+          return NextResponse.json(
+            { success: false, message: 'Invalid social links format' },
+            { status: 400 }
+          );
+        }
+      }
+      
+      // Initialize image URLs with existing values or defaults
+      profileImageUrl = existingProfileImage || 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1200';
+      aboutPageImageUrl = existingAboutPageImage || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200';
+      
+      // Handle profile image upload
+      const profileImageFile = formData.get('profileImage');
+      if (profileImageFile && profileImageFile.name) {
+        const buffer = Buffer.from(await profileImageFile.arrayBuffer());
+        const uploadedImage = await uploadSingleImage(buffer, profileImageFile.type, 'profile');
+        profileImageUrl = uploadedImage.url;
+      }
+      
+      // Handle about page image upload
+      const aboutPageImageFile = formData.get('aboutPageImage');
+      if (aboutPageImageFile && aboutPageImageFile.name) {
+        const buffer = Buffer.from(await aboutPageImageFile.arrayBuffer());
+        const uploadedImage = await uploadSingleImage(buffer, aboutPageImageFile.type, 'profile');
+        aboutPageImageUrl = uploadedImage.url;
+      }
+    } else {
+      // Handle JSON (backward compatibility - check if images need uploading)
+      const body = await request.json();
+      name = body.name;
+      title = body.title;
+      bio = body.bio;
+      email = body.email;
+      phone = body.phone || '';
+      experience = body.experience;
+      location = body.location || '';
+      mapLocation = body.mapLocation || '';
+      socialLinks = body.socialLinks || {};
+      
+      // Handle profile image
+      profileImageUrl = body.profileImage || body.image;
+      if (profileImageUrl && (profileImageUrl.startsWith('data:') || profileImageUrl.length > 500) && !profileImageUrl.startsWith('http')) {
+        const uploaded = await uploadBase64Image(profileImageUrl, 'profile');
+        profileImageUrl = uploaded.url;
+      } else if (!profileImageUrl || !profileImageUrl.startsWith('http')) {
+        profileImageUrl = 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=1200';
+      }
+      
+      // Handle about page image
+      aboutPageImageUrl = body.aboutPageImage || body.image;
+      if (aboutPageImageUrl && (aboutPageImageUrl.startsWith('data:') || aboutPageImageUrl.length > 500) && !aboutPageImageUrl.startsWith('http')) {
+        const uploaded = await uploadBase64Image(aboutPageImageUrl, 'profile');
+        aboutPageImageUrl = uploaded.url;
+      } else if (!aboutPageImageUrl || !aboutPageImageUrl.startsWith('http')) {
+        aboutPageImageUrl = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=1200';
+      }
+    }
     
     // Validate required fields
-    const requiredFields = ['name', 'title', 'bio', 'email', 'experience'];
-    const missingFields = requiredFields.filter(field => !body[field]);
-    
-    if (missingFields.length > 0) {
+    if (!name || !title || !bio || !email || !experience) {
       return NextResponse.json(
-        { success: false, message: `Missing required fields: ${missingFields.join(', ')}` },
+        { success: false, message: 'Missing required fields: name, title, bio, email, experience' },
         { status: 400 }
       );
     }
 
     // Validate email format
     const emailRegex = /^\S+@\S+\.\S+$/;
-    if (!emailRegex.test(body.email)) {
+    if (!emailRegex.test(email)) {
       return NextResponse.json(
         { success: false, message: 'Invalid email format' },
         { status: 400 }
       );
-    }
-
-    // Validate social links structure
-    if (body.socialLinks && Array.isArray(body.socialLinks)) {
-      for (const link of body.socialLinks) {
-        if (!link.platform || !link.url) {
-          return NextResponse.json(
-            { success: false, message: 'Each social link must have a platform and URL' },
-            { status: 400 }
-          );
-        }
-      }
     }
 
     // Get the active profile
@@ -88,23 +159,34 @@ export async function PUT(request) {
     // If no profile exists, create a new one
     if (!profile) {
       profile = new Profile({
-        ...body,
+        name,
+        title,
+        bio,
+        profileImage: profileImageUrl,
+        aboutPageImage: aboutPageImageUrl,
+        image: profileImageUrl, // Legacy field
+        email,
+        phone,
+        socialLinks,
+        experience,
+        location,
+        mapLocation,
         isActive: true
       });
     } else {
       // Update existing profile
-      profile.name = body.name;
-      profile.title = body.title;
-      profile.bio = body.bio;
-      profile.profileImage = body.profileImage || body.image || profile.profileImage;
-      profile.aboutPageImage = body.aboutPageImage || body.image || profile.aboutPageImage;
-      profile.image = body.image || body.profileImage || profile.image; // Legacy field
-      profile.email = body.email;
-      profile.phone = body.phone || '';
-      profile.socialLinks = body.socialLinks || [];
-      profile.experience = body.experience;
-      profile.location = body.location || '';
-      profile.mapLocation = body.mapLocation || '';
+      profile.name = name;
+      profile.title = title;
+      profile.bio = bio;
+      profile.profileImage = profileImageUrl;
+      profile.aboutPageImage = aboutPageImageUrl;
+      profile.image = profileImageUrl; // Legacy field
+      profile.email = email;
+      profile.phone = phone;
+      profile.socialLinks = socialLinks;
+      profile.experience = experience;
+      profile.location = location;
+      profile.mapLocation = mapLocation;
     }
 
     await profile.save();
@@ -122,7 +204,7 @@ export async function PUT(request) {
         image: profile.image || '',
         email: profile.email,
         phone: profile.phone || '',
-        socialLinks: profile.socialLinks || [],
+        socialLinks: profile.socialLinks || {},
         experience: profile.experience,
         location: profile.location || '',
         mapLocation: profile.mapLocation || ''

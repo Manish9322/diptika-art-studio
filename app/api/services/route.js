@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import _db from '@/utils/db';
 import Service from '@/models/service.model';
 import { verifyAdminToken } from '@/utils/authMiddleware';
+import { uploadSingleImage, uploadBase64Image } from '@/utils/cloudinary';
 
 // GET - Fetch all services with optional filters
 export async function GET(request) {
@@ -58,18 +59,79 @@ export async function POST(request) {
     
     await _db();
     
-    const body = await request.json();
+    // Check content type to handle both JSON and FormData
+    const contentType = request.headers.get('content-type') || '';
+    let serviceData = {};
     
-    // Validate required fields
-    if (!body.title || !body.description || !body.priceStart) {
-      return NextResponse.json({
-        success: false,
-        message: 'Please provide all required fields: title, description, priceStart'
-      }, { status: 400 });
+    if (contentType.includes('multipart/form-data')) {
+      // Handle FormData (with image uploads)
+      const formData = await request.formData();
+      
+      // Extract form fields
+      const title = formData.get('title');
+      const description = formData.get('description');
+      const priceStart = formData.get('priceStart');
+      const currency = formData.get('currency') || 'INR';
+      const featured = formData.get('featured') === 'true';
+      const active = formData.get('active') === 'true';
+      const order = parseInt(formData.get('order') || '0');
+      
+      // Validate required fields
+      if (!title || !description || !priceStart) {
+        return NextResponse.json({
+          success: false,
+          message: 'Please provide all required fields: title, description, priceStart'
+        }, { status: 400 });
+      }
+      
+      // Handle image upload
+      let imageUrl = '';
+      const imageFile = formData.get('image');
+      
+      if (imageFile && imageFile.name) {
+        const buffer = Buffer.from(await imageFile.arrayBuffer());
+        const uploadedImage = await uploadSingleImage(buffer, imageFile.type, 'services');
+        imageUrl = uploadedImage.url;
+      }
+      
+      serviceData = {
+        title,
+        description,
+        priceStart,
+        currency,
+        image: imageUrl,
+        featured,
+        active,
+        order
+      };
+    } else {
+      // Handle JSON (backward compatibility - check if image needs uploading)
+      const body = await request.json();
+      
+      // Validate required fields
+      if (!body.title || !body.description || !body.priceStart) {
+        return NextResponse.json({
+          success: false,
+          message: 'Please provide all required fields: title, description, priceStart'
+        }, { status: 400 });
+      }
+      
+      // Check if image is base64 or URL
+      let imageUrl = body.image || '';
+      if (imageUrl && (imageUrl.startsWith('data:') || imageUrl.length > 500) && !imageUrl.startsWith('http')) {
+        // Upload base64 to Cloudinary
+        const uploaded = await uploadBase64Image(imageUrl, 'services');
+        imageUrl = uploaded.url;
+      }
+      
+      serviceData = {
+        ...body,
+        image: imageUrl
+      };
     }
     
     // Create service
-    const service = await Service.create(body);
+    const service = await Service.create(serviceData);
     
     return NextResponse.json({
       success: true,
@@ -117,12 +179,64 @@ export async function PUT(request) {
       }, { status: 400 });
     }
     
-    const body = await request.json();
+    // Check content type to handle both JSON and FormData
+    const contentType = request.headers.get('content-type') || '';
+    let updateData = {};
+    
+    if (contentType.includes('multipart/form-data')) {
+      // Handle FormData (with image uploads)
+      const formData = await request.formData();
+      
+      // Extract form fields
+      const title = formData.get('title');
+      const description = formData.get('description');
+      const priceStart = formData.get('priceStart');
+      const currency = formData.get('currency');
+      const featured = formData.get('featured') === 'true';
+      const active = formData.get('active') === 'true';
+      const order = formData.get('order') ? parseInt(formData.get('order')) : undefined;
+      const existingImage = formData.get('existingImage');
+      
+      // Prepare update object
+      if (title) updateData.title = title;
+      if (description) updateData.description = description;
+      if (priceStart) updateData.priceStart = priceStart;
+      if (currency) updateData.currency = currency;
+      if (formData.has('featured')) updateData.featured = featured;
+      if (formData.has('active')) updateData.active = active;
+      if (order !== undefined) updateData.order = order;
+      if (existingImage) updateData.image = existingImage;
+      
+      // Handle new image upload
+      const newImageFile = formData.get('newImage');
+      
+      if (newImageFile && newImageFile.name) {
+        const buffer = Buffer.from(await newImageFile.arrayBuffer());
+        const uploadedImage = await uploadSingleImage(buffer, newImageFile.type, 'services');
+        updateData.image = uploadedImage.url;
+      }
+    } else {
+      // Handle JSON (backward compatibility - check if image needs uploading)
+      const body = await request.json();
+      
+      // Check if image is base64 or URL
+      let imageUrl = body.image;
+      if (imageUrl && (imageUrl.startsWith('data:') || imageUrl.length > 500) && !imageUrl.startsWith('http')) {
+        // Upload base64 to Cloudinary
+        const uploaded = await uploadBase64Image(imageUrl, 'services');
+        imageUrl = uploaded.url;
+      }
+      
+      updateData = {
+        ...body,
+        image: imageUrl || body.image
+      };
+    }
     
     // Find and update service
     const service = await Service.findByIdAndUpdate(
       id,
-      body,
+      updateData,
       {
         new: true,
         runValidators: true
